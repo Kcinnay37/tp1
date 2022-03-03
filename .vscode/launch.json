@@ -1,0 +1,18 @@
+{
+	"configurations": [
+		{
+			"name": "Kinc: Launch",
+			"type": "cppvsdbg",
+			"request": "launch",
+			"program": "d:\\repos\\collegebart\\tech-prog-bart-labo\\lab1\\Deployment\\New-Project.exe",
+			"cwd": "d:\\repos\\collegebart\\tech-prog-bart-labo\\lab1\\Deployment",
+			"preLaunchTask": "Kinc: Debug Build for Windows",
+			"externalConsole": true,
+			"logging": {
+				"moduleLoad": false,
+				"trace": true
+			}
+		}
+	],
+	"compounds": []
+}
