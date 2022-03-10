@@ -1,105 +1,309 @@
 #include"labo.h"
+#include<stdlib.h>
 
-void pushBack(Node* n, void* data)
+void PushBack(Queue* q, void* data)
 {
-	if (n->data == NULL)
+	if (q->head == NULL && q->tail == NULL)
 	{
-		n->next = NULL;
-		n->prev = NULL;
-		n->data = data;
+		Node* newNode = malloc(sizeof(Node));//allocate(sizeof(Node));
 
-		return;
-	}
+		int bob;
 
-	if (n->prev == NULL)
-	{
-		Node* newNode = allocate(sizeof(Node));
-		
-		n->prev = newNode;
-		n->next = newNode;
-
-		newNode->prev = n;
 		newNode->next = NULL;
+		newNode->prev = NULL;
 		newNode->data = data;
 
+		q->tail = newNode;
+		q->head = newNode;
+		q->nombreNode++;
+
+		return;
+	}
+	else
+	{
+		Node* newNode = malloc(sizeof(Node));//allocate(sizeof(Node));
+		newNode->next = NULL;
+		newNode->prev = q->tail;
+		newNode->data = data;
+
+		q->tail->next = newNode;
+		q->tail = newNode;
+		q->nombreNode++;
+
+		return;
+	}
+}
+
+void PushHead(Queue* q, void* data)
+{
+	if (q->head == NULL && q->tail == NULL)
+	{
+		PushBack(q, data);
+		
+		return;
+	}
+	else
+	{
+		Node* newNode = malloc(sizeof(Node));//allocate(sizeof(Node));
+		newNode->next = q->head;
+		newNode->prev = NULL;
+		newNode->data = data;
+
+		q->head->prev = newNode;
+		q->head = newNode;
+		q->nombreNode++;
+
+		return;
+	}
+}
+
+void PushNodePosition(Queue* q, Node* n, void* data)
+{
+	if (q->head == NULL && q->tail == NULL)
+	{
+		PushBack(q, data);
+		return;
+	}
+	else if (n == q->head || n == NULL)
+	{
+		if (n == q->head)
+		{
+			PushHead(q, data);
+		}
+		else if (n == NULL)
+		{
+			PushBack(q, data);
+		}
+		return;
+	}
+	else
+	{
+		Node* newNode = malloc(sizeof(Node));//allocate(sizeof(Node));
+		newNode->next = n;
+		newNode->prev = n->prev;
+		newNode->data = data;
+
+		newNode->prev->next = newNode;
+		newNode->next->prev = newNode;
+
+		q->nombreNode++;
 		return;
 	}
 
-	Node* newNode = allocate(sizeof(Node));
-	n->prev->next = newNode;
-	newNode->prev = n->prev;
-	n->prev = newNode;
-	newNode->next = NULL;
-	newNode->data = data;
 }
 
-Node popByName(Node* n, char* name)
+void PushAsPriority(Queue* q, void* data)
 {
-	if (n == NULL || n->data == NULL)
+	if (q->head == NULL && q->tail == NULL)
+	{
+		PushBack(q, data);
+		return;
+	}
+	else
+	{
+		Node* currNode = q->head;
+		Items* newItems = data;
+
+		while (currNode != NULL)
+		{
+			Items* currItems = currNode->data;
+
+			if (currItems->prixVente > newItems->prixVente)
+			{
+				break;
+			}
+
+			currNode = currNode->next;
+		}
+
+		PushNodePosition(q, currNode, data);
+		return;
+	}
+}
+
+void PushRandomItems(Queue* q)
+{
+
+}
+
+void deleteNode(Queue* q, Node* node)
+{
+	if (q->head == NULL && q->tail == NULL || node == NULL)
+	{
+		return;
+	}
+	else if (q->head == node || q->tail == node)
+	{
+		if (q->head == node && q->tail == node)
+		{
+			node->next = NULL;
+			node->prev = NULL;
+			memset(node, 0, sizeof(node));
+
+			q->head = NULL;
+			q->tail = NULL;
+			q->nombreNode = 0;
+			return;
+		}
+		else if (q->head == node)
+		{
+			q->head = node->next;
+			q->head->prev = NULL;
+			q->nombreNode--;
+
+			node->next = NULL;
+			node->prev = NULL;
+			memset(node, 0, sizeof(Node));
+			return;
+		}
+		else if (q->tail == node)
+		{
+			q->tail = node->prev;
+			q->tail->next = NULL;
+			q->nombreNode--;
+
+			node->next = NULL;
+			node->prev = NULL;
+			memset(node, 0, sizeof(Node));
+			return;
+		}
+	}
+	else
+	{
+		node->next->prev = node->prev;
+		node->prev->next = node->next;
+		
+		node->next = NULL;
+		node->prev = NULL;
+		memset(node, 0, sizeof(Node));
+		q->nombreNode--;
+		return;
+	}
+}
+
+Node PopByName(Queue* q, char* name)
+{
+	if (q->head == NULL && q->tail == NULL)
 	{
 		Node temp = { 0 };
 		return temp;
 	}
-	else if(n->next == NULL)
+	else
 	{
-		Items* currentItems = n->data;
-		if (*currentItems->name == *name)
+		Node* currNode = q->head;
+		while (currNode != NULL)
 		{
-			Node temp = *n;
-			n->next = NULL;
-			n->prev = NULL;
-			n->data = NULL;
-			return temp;
-		}
-		else
-		{
-			Node temp = { 0 };
-			return temp;
-		}
-	}
-	
-	Node* currentNode = n;
+			Items* currItems = currNode->data;
 
-	while (currentNode != NULL)
-	{
-		Items* currentItems = currentNode->data;
-
-		if (*currentItems->name == *name)
-		{
-			Node temp = *currentNode;
-
-			if (currentNode->prev != NULL)
+			if (currItems->name == name)
 			{
-				currentNode->prev->next = currentNode->next;
+				break;
 			}
 
+			currNode = currNode->next;
+		}
+		Node temp = {0};
+		if (currNode != NULL)
+		{
+			temp = *currNode;
+		}
+		deleteNode(q, currNode);
+		return temp;
+	}
+}
 
-			memset(currentNode, 0, sizeof(Node));
-			return temp;
+void SortByPrixVente(Queue* q)
+{
+	if (q->head == NULL && q->tail == NULL)
+	{
+		return;
+	}
+	else
+	{
+		Items** tablItems = malloc(sizeof(Items) * q->nombreNode);//allocate(sizeof(Items) * q->nombreNode);
+		Node* currNode = q->head;
+
+		int nombreItems = q->nombreNode;
+
+		int a = 0;
+		while (currNode != NULL)
+		{
+			tablItems[a] = currNode->data;
+			currNode = currNode->next;
+			a++;
 		}
 
-		currentNode = currentNode->next;
+		while (q->head != NULL && q->tail != NULL)
+		{
+			deleteNode(q, q->head);
+		}
+
+		for (int i = 0; i < nombreItems; i++)
+		{
+			PushAsPriority(q, tablItems[i]);
+		}
+
+		memset(tablItems, 0, sizeof(Items) * q->nombreNode);
+		return;
 	}
-	Node temp = { 0 };
-	return temp;
+	
+	
 }
 
-void sortByPrixVente(Node* n)
+Items* FindItemsByPosition(Queue* q, int position)
 {
+	if (position >= q->nombreNode)
+	{
+		return NULL;
+	}
+	else
+	{
+		Node* currNode = q->head;
+		for (int i = 0; i < position; i++)
+		{
+			currNode = currNode->next;
+		}
 
+		Items* currItems = currNode->data;
+		return currItems;
+	}
 }
 
-Items* findItemsByPosition(Node* n, int position)
+Items* FindItemsByName(Queue* q, char* name)
 {
+	Node* currNode = q->head;
+	Items* currItems = currNode->data;
 
+	while (currNode != NULL)
+	{
+		if (currItems->name == name)
+		{
+			return currItems;
+		}
+		currNode = currNode->next;
+		currItems = currNode->data;
+	}
+	return NULL;
 }
 
-Items* findItemsByName(Node* n, char* name)
+int TakeNumberItems(Queue* q)
 {
-
+	return q->nombreNode;
 }
 
-int takeNumberItems(Node* n)
+void PrintInventory(Queue* q)
 {
-
+	Node* currNode = q->head;
+	
+	int i = 0;
+	while (currNode != NULL)
+	{
+		Items* currItems = currNode->data;
+		printf("Items %d\n", i);
+		printf("Name : %s\n", currItems->name);
+		printf("Prix Vente : %d$\n\n", currItems->prixVente);
+		
+		currNode = currNode->next;
+		i++;
+	}
 }

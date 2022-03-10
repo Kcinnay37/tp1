@@ -29,14 +29,35 @@ struct Node
 	Node* next;
 };
 
-void pushBack(Node* n, void* data);
+typedef struct Queue Queue;
 
-Node* popByName(Node* n, char* name);
+struct Queue
+{
+	Node* head;
+	Node* tail;
+	int nombreNode;
+};
 
-void sortByPrixVente(Node* n);
+void PushBack(Queue* q, void* data);
 
-Items* findItemsByPosition(Node* n, int position);
+void PushAsPriority(Queue* q, void* data);
 
-Items* findItemsByName(Node* n, char* name);
+void PushHead(Queue* q, void* data);
 
-int takeNumberItems(Node* n);
+void PushNodePosition(Queue* q, Node* n, void* data);
+
+void PushRandomItems(Queue* q);
+
+void deleteNode(Queue* q, Node* node);
+
+Node PopByName(Queue* q, char* name);
+
+void SortByPrixVente(Queue* q);
+
+Items* FindItemsByPosition(Queue* q, int position);
+
+Items* FindItemsByName(Queue* q, char* name);
+
+int TakeNumberItems(Queue* q);
+
+void PrintInventory(Queue* q);
