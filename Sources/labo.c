@@ -307,3 +307,11 @@ void PrintInventory(Queue* q)
 		i++;
 	}
 }
+
+void DeleteQueueMemory(Queue* q)
+{
+	while (q->head != NULL && q->tail != NULL)
+	{
+		deleteNode(q, q->head);
+	}
+}

@@ -27,5 +27,7 @@ int main(void)
 
 	PrintInventory(&q);
 
+	DeleteQueueMemory(&q);
+
 	return 0;
 }

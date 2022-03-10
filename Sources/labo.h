@@ -61,3 +61,5 @@ Items* FindItemsByName(Queue* q, char* name);
 int TakeNumberItems(Queue* q);
 
 void PrintInventory(Queue* q);
+
+void DeleteQueueMemory(Queue* q);
