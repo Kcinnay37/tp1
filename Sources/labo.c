@@ -1,13 +1,13 @@
 #include"labo.h"
 #include<stdlib.h>
+#include<stdio.h>
+#include<time.h>
 
 void PushBack(Queue* q, void* data)
 {
 	if (q->head == NULL && q->tail == NULL)
 	{
 		Node* newNode = malloc(sizeof(Node));//allocate(sizeof(Node));
-
-		int bob;
 
 		newNode->next = NULL;
 		newNode->prev = NULL;
@@ -121,9 +121,32 @@ void PushAsPriority(Queue* q, void* data)
 	}
 }
 
-void PushRandomItems(Queue* q)
+void PushRandomItems(Queue* q, Queue* items, int number)
 {
+	srand(time(0));
+	for (int i = 0; i < number; i++)
+	{
+		int randNumber = rand() % TakeNumberItemsFile();
+		PushBack(q, FindItemsByPosition(items, randNumber));
+	}
+}
 
+void PushRandomItemsWithout(Queue* q, Queue* items, int number, int index)
+{
+	srand(time(0));
+	int randNumber = 0;
+	for (int i = 0; i < number; i++)
+	{
+		while (1)
+		{
+			randNumber = rand() % TakeNumberItemsFile();
+			if (randNumber != index)
+			{
+				break;
+			}
+		}
+		PushBack(q, FindItemsByPosition(items, randNumber));
+	}
 }
 
 void deleteNode(Queue* q, Node* node)
@@ -191,11 +214,28 @@ Node PopByName(Queue* q, char* name)
 	else
 	{
 		Node* currNode = q->head;
+		int sameName = 0;
+		int index = 0;
 		while (currNode != NULL)
 		{
 			Items* currItems = currNode->data;
 
-			if (currItems->name == name)
+			int tailleNom = 0;
+			while (currItems->name[tailleNom] != 0)
+			{
+				if (currItems->name[tailleNom] == name[tailleNom])
+				{
+					sameName = 1;
+				}
+				else
+				{
+					sameName = 0;
+					break;
+				}
+				tailleNom++;
+			}
+
+			if (sameName)
 			{
 				break;
 			}
@@ -271,17 +311,41 @@ Items* FindItemsByPosition(Queue* q, int position)
 
 Items* FindItemsByName(Queue* q, char* name)
 {
+	if (q->head == NULL && q->tail == NULL)
+	{
+		return NULL;
+	}
 	Node* currNode = q->head;
 	Items* currItems = currNode->data;
 
+	int sameName = 0;
+	int index = 0;
 	while (currNode != NULL)
 	{
-		if (currItems->name == name)
+		int tailleNom = 0;
+		while (currItems->name[tailleNom] != 0)
+		{
+			if (currItems->name[tailleNom] == name[tailleNom])
+			{
+				sameName = 1;
+			}
+			else
+			{
+				sameName = 0;
+				break;
+			}
+			tailleNom++;
+		}
+
+		if (sameName)
 		{
 			return currItems;
 		}
 		currNode = currNode->next;
-		currItems = currNode->data;
+		if (currNode != NULL)
+		{
+			currItems = currNode->data;
+		}
 	}
 	return NULL;
 }
@@ -291,8 +355,56 @@ int TakeNumberItems(Queue* q)
 	return q->nombreNode;
 }
 
+int TakeItemsIdexByName(Queue* q, char* name)
+{
+	if (q->head == NULL && q->tail == NULL)
+	{
+		return -1;
+	}
+	Node* currNode = q->head;
+	Items* currItems = currNode->data;
+
+	int sameName = 0;
+
+	int index = 0;
+	while (currNode != NULL)
+	{
+		int tailleNom = 0;
+		while (currItems->name[tailleNom] != 0)
+		{
+			if (currItems->name[tailleNom] == name[tailleNom])
+			{
+				sameName = 1;
+			}
+			else
+			{
+				sameName = 0;
+				break;
+			}
+			tailleNom++;
+		}
+
+		if (sameName)
+		{
+			return index;
+		}
+		currNode = currNode->next;
+		if (currNode != NULL)
+		{
+			currItems = currNode->data;
+			index++;
+		}
+	}
+	return -1;
+}
+
 void PrintInventory(Queue* q)
 {
+	if (q->head == NULL && q->tail == NULL)
+	{
+		return;
+	}
+
 	Node* currNode = q->head;
 	
 	int i = 0;
@@ -314,4 +426,152 @@ void DeleteQueueMemory(Queue* q)
 	{
 		deleteNode(q, q->head);
 	}
+}
+
+void DeleteItemMemory(Items* item)
+{
+	memset(item->name, 0, sizeof(char) * 30);
+	memset(item, 0, sizeof(Items));
+}
+
+void DeleteItemsMemory(Queue* q)
+{
+	Node* currNode = q->head;
+	while (currNode != NULL)
+	{
+		Items* currItems = currNode->data;
+		DeleteItemMemory(currItems);
+		currNode = currNode->next;
+	}
+}
+
+void TakeAllItemsFile(Queue* items)
+{
+	int nbItems = TakeNumberItemsFile();
+	for (int i = 0; i < nbItems; i++)
+	{
+		PushBack(items, TakeItemsFile(i));
+	}
+}
+
+Items* TakeItemsFile(int line)
+{
+	FILE* file;
+	file = fopen("C:\\Users\\yanni\\OneDrive\\Bureau\\TechProg\\tp1\\Deployment\\data.csv", "r");
+	
+	char currChar = 0;
+	int nonNull = 0;
+	rewind(file);
+	for (int i = 0; i < line; i++)
+	{
+		while (currChar != '\n')
+		{
+			currChar = getc(file);
+			if (currChar != EOF)
+			{
+				nonNull = 1;
+			}
+			if (currChar == EOF && nonNull == 0)
+			{
+				//Items temp = { 0 };
+				return NULL;
+			}
+			nonNull = 0;
+		}
+		currChar = getc(file);
+	}
+
+	Items* newItems = malloc(sizeof(Items));
+	newItems->name = malloc(sizeof(char) * 30);
+	int a = 0;
+	char prixChar[20] = { 0 };
+
+	while (currChar != ',')
+	{
+		currChar = fgetc(file);
+	}
+	currChar = fgetc(file);
+	currChar = fgetc(file);
+	while (currChar != ',')
+	{
+		newItems->name[a] = currChar;
+		currChar = fgetc(file);
+		a++;
+	}
+	while (a != 30)
+	{
+		newItems->name[a] = 0;
+		a++;
+	}
+
+	currChar = fgetc(file);
+	while (currChar != ',')
+	{
+		currChar = fgetc(file);
+	}
+	currChar = fgetc(file);
+	currChar = fgetc(file);
+	a = 0;
+	while (currChar != '\n' && currChar != EOF)
+	{
+		prixChar[a] = currChar;
+		currChar = fgetc(file);
+		a++;
+	}
+
+	newItems->prixVente = ConvertStringToInt(prixChar, a);
+
+	fclose(file);
+
+	return newItems;
+}
+
+int TakeNumberItemsFile()
+{
+	FILE* file;
+	file = fopen("C:\\Users\\yanni\\OneDrive\\Bureau\\TechProg\\tp1\\Deployment\\data.csv", "r");
+
+	char currChar = 0;
+	int nombreLine = 0;
+	int step = 0;
+
+	rewind(file);
+	while (currChar != EOF)
+	{
+		currChar = getc(file);
+		if (step == 0 && currChar == EOF)
+		{
+			fclose(file);
+			return nombreLine;
+		}
+		if (currChar == '\n')
+		{
+			nombreLine++;
+		}
+		step++;
+	}
+	nombreLine++;
+
+
+	fclose(file);
+
+	return nombreLine;
+}
+
+int ConvertStringToInt(char* text, int length)
+{
+	int exposant = 1;
+	int nombreTotal = 0;
+	for (int i = 0; i < length - 1; i++)
+	{
+		exposant *= 10;
+	}
+	for (int i = 0; i < length; i++)
+	{
+		int currNombre = (int)text[i] - 48;
+		nombreTotal += currNombre * exposant;
+		exposant /= 10;
+	}
+
+	return nombreTotal;
 }

@@ -46,7 +46,9 @@ void PushHead(Queue* q, void* data);
 
 void PushNodePosition(Queue* q, Node* n, void* data);
 
-void PushRandomItems(Queue* q);
+void PushRandomItems(Queue* q, Queue* items, int number);
+
+void PushRandomItemsWithout(Queue* q, Queue* items, int number, int* index);
 
 void deleteNode(Queue* q, Node* node);
 
@@ -60,6 +62,20 @@ Items* FindItemsByName(Queue* q, char* name);
 
 int TakeNumberItems(Queue* q);
 
+int TakeItemsIdexByName(Queue* q, char* name);
+
 void PrintInventory(Queue* q);
 
 void DeleteQueueMemory(Queue* q);
+
+void DeleteItemMemory(Items* item);
+
+void DeleteItemsMemory(Queue* q);
+
+void TakeAllItemsFile(Queue* items);
+
+Items* TakeItemsFile(int line);
+
+int TakeNumberItemsFile();
+
+int ConvertStringToInt(char* text, int length);

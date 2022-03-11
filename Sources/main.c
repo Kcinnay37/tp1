@@ -9,25 +9,26 @@ size_t heap_top = 0;
 
 int main(void)
 {
-	Queue q = {0};
+	Queue items = { 0 };
+	Queue inventory = { 0 };
 
-	Items items1 = { "patate", 55};
-	Items items2 = { "couteau", 300};
-	Items items3 = { "armure", 1000};
-	Items items4 = { "hache", 400};
+	TakeAllItemsFile(&items);
 
-	PushBack(&q, &items1);
-	PushBack(&q, &items2);
-	PushBack(&q, &items3);
-	PushBack(&q, &items4);
+	PushBack(&inventory, FindItemsByName(&items, "Potion"));
 
-	SortByPrixVente(&q);
+	PushRandomItemsWithout(&inventory, &items, 10, TakeItemsIdexByName(&items, "Potion"));
 
-	//PopByName(&q, "couteau");
+	PrintInventory(&inventory);
 
-	PrintInventory(&q);
+	SortByPrixVente(&inventory);
 
-	DeleteQueueMemory(&q);
+	PopByName(&inventory, "Potion");
+
+	PrintInventory(&inventory);
+
+	DeleteItemsMemory(&items);
+	DeleteQueueMemory(&items);
+	DeleteQueueMemory(&inventory);
 
 	return 0;
 }
